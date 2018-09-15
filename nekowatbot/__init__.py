@@ -116,6 +116,11 @@ class Nekowat(object):
         self.send_message = self.bot.send_message
         self.send_photo = self.bot.send_photo
 
+    def _save_conf(self):
+        """Save configuration to file."""
+        with open(self._conf_path, 'w') as f:
+            json.dump(self._conf, f)
+
     def start(self):
         """Bot starter."""
         print('Start polling')
@@ -160,8 +165,7 @@ class Nekowat(object):
         self.whitelist[name] = user_id
         self._conf['tg']['whitelist'] = self.whitelist
 
-        with open(self._conf_path, 'w') as f:
-            json.dump(self._conf, f)
+        self._save_conf()
 
         return True
 
@@ -183,10 +187,18 @@ class Nekowat(object):
         del self.whitelist[name]
         self._conf['tg']['whitelist'] = self.whitelist
 
-        with open(self._conf_path, 'w') as f:
-            json.dump(self._conf, f)
+        self._save_conf()
 
         return True
+
+    def toggle_whitelist(self):
+        """Toggle use of whitelist."""
+        new_status = not self.use_whitelist
+
+        self._conf['tg']['use_whitelist'] = new_status
+        self.use_whitelist = new_status
+
+        self._save_conf()
 
     def create_wat(self, name, file_ids):
         """Insert a new wat record in the database.

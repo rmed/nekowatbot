@@ -45,7 +45,8 @@ def handle_start(message):
         '/setexpressions : Set the expressions of a WAT\n'
         '/addwhitelist <name> <id> : Add user ID to whitelist\n'
         '/rmwhitelist <name> : Remove user from whitelist\n'
-        '/whitelist : Show current whitelist'
+        '/whitelist : Show current whitelist\n'
+        '/togglewhitelist : Toggle use of whitelist'
     )
 
     nekowat.reply_to(message,response)
@@ -446,6 +447,24 @@ def handle_show_whitelist(message):
     nekowat.reply_to(message, msg)
 
 
+@nekowat.message_handler(commands=['togglewhitelist'])
+def handle_toggle_whitelist(message):
+    """Toggle use of whitelist."""
+    if not nekowat.is_owner(message.chat.id):
+        nekowat.reply_to(message, 'You do not have permission to do that')
+        return
+
+    nekowat.toggle_whitelist()
+
+    if nekowat.use_whitelist:
+        status = 'ON'
+
+    else:
+        status = 'OFF'
+
+    nekowat.reply_to(message, 'Whitelist is %s' % status)
+
+
 @nekowat.inline_handler(lambda query: True)
 def handle_inline(inline_query):
     """Answers inline queries.
@@ -455,6 +474,7 @@ def handle_inline(inline_query):
     database.
     """
     if not nekowat.is_allowed(inline_query.from_user.id):
+        nekowat.answer_inline_query(inline_query.id, [])
         return
 
     # Normalize expression
